@@ -1,4 +1,4 @@
-# main.py - EINFACHE FUNKTIONIERENDE APP
+# main.py - MIT FUNKTIONIERENDEM BUTTON
 import flet as ft
 import subprocess
 import sys
@@ -9,92 +9,171 @@ print("=== SAFKATY APP STARTET ===")
 def main(page: ft.Page):
     print("✓ App-Fenster wird erstellt")
     
-    # 1. Einstellungen für die Seite
-    page.title = "SAFKATY App"
+    # 1. Einstellungen
+    page.title = "SAFKATY"
     page.theme_mode = ft.ThemeMode.LIGHT
+    page.padding = 20
     
-    # 2. SOFORT SICHTBARER TEXT (gegen weißen Bildschirm)
-    status = ft.Text(
-        "SAFKATY ist bereit!",
-        size=24,
-        color="green",
-        weight="bold"
+    # 2. Statusanzeige (oben grün)
+    status_text = ft.Text(
+        "✅ SAFKATY IST BEREIT",
+        size=20,
+        color=ft.colors.GREEN,
+        weight=ft.FontWeight.BOLD
     )
-    page.add(status)
     
-    # 3. TITEL
-    page.add(ft.Text("SAFKATY", size=36, weight="bold"))
-    page.add(ft.Text("Marchés Publics Manager", size=18))
-    page.add(ft.Divider())
-    
-    # 4. RESULTAT-FELD
-    result = ft.TextField(
+    # 3. Haupt-Container
+    result_display = ft.TextField(
+        label="Programm-Ausgabe",
         multiline=True,
         min_lines=8,
         max_lines=15,
         width=500,
         read_only=True,
-        border_color="gray",
+        border_color=ft.colors.BLUE_GREY_300,
         filled=True,
-        bgcolor="#f5f5f5"
+        bgcolor=ft.colors.BLUE_GREY_50,
+        text_size=14
     )
-    page.add(result)
     
-    # 5. START-BUTTON
-    def start_program(e):
-        result.value = "➤ Starte SAFKATY...\n"
-        page.update()
+    # 4. BUTTON-FUNKTION die WIRKLICH FUNKTIONIERT
+    def button_geklickt(e):
+        print("🔘 Button wurde geklickt!")
+        
+        # Sofortige Rückmeldung im Textfeld
+        result_display.value = "🔄 SAFKATY wird gestartet...\n"
+        page.update()  # WICHTIG: Sofort aktualisieren!
         
         try:
-            # Prüfe ob Datei existiert
+            # 1. Prüfen ob safkaty.py existiert
             if os.path.exists("safkaty.py"):
-                result.value += "✓ Datei gefunden\n"
+                result_display.value += "✓ Datei 'safkaty.py' gefunden\n"
                 page.update()
                 
-                # Skript ausführen
+                # 2. Python-Pfad finden
+                python_exe = sys.executable
+                result_display.value += f"✓ Python: {python_exe}\n"
+                
+                # 3. Skript ausführen
+                result_display.value += "🚀 Starte Programm...\n"
+                page.update()
+                
+                # Einfacher Testbefehl
                 process = subprocess.run(
-                    [sys.executable, "safkaty.py"],
+                    [python_exe, "safkaty.py"],
                     capture_output=True,
                     text=True,
-                    timeout=60
+                    timeout=30
                 )
                 
-                # Ergebnis anzeigen
-                if process.stdout:
-                    result.value += f"\n✅ ERFOLG:\n{process.stdout}\n"
-                if process.stderr:
-                    result.value += f"\n⚠️ HINWEISE:\n{process.stderr}\n"
+                # 4. Ergebnisse anzeigen
+                if process.returncode == 0:
+                    result_display.value += f"\n✅ PROGRAMM ERFOLGREICH!\n"
+                    result_display.value += f"Rückgabecode: {process.returncode}\n\n"
+                    
+                    if process.stdout:
+                        # Erste 1000 Zeichen anzeigen
+                        output = process.stdout[:1000]
+                        result_display.value += f"Ausgabe:\n{output}\n"
+                        
+                        if len(process.stdout) > 1000:
+                            result_display.value += f"... (noch {len(process.stdout)-1000} Zeichen)\n"
                 
-                result.value += f"\n🔚 Programm beendet mit Code: {process.returncode}"
-                
+                else:
+                    result_display.value += f"\n⚠️ PROGRAMM MIT FEHLER BEENDET\n"
+                    result_display.value += f"Rückgabecode: {process.returncode}\n"
+                    
+                    if process.stderr:
+                        result_display.value += f"Fehler:\n{process.stderr}\n"
+                        
             else:
-                result.value = "❌ FEHLER: safkaty.py nicht gefunden!\n\n"
-                result.value += f"Aktuelle Dateien:\n"
-                for file in os.listdir("."):
-                    result.value += f"- {file}\n"
+                # Datei nicht gefunden
+                result_display.value = "❌ FEHLER: 'safkaty.py' nicht gefunden!\n\n"
+                result_display.value += f"Aktuelles Verzeichnis: {os.getcwd()}\n"
+                result_display.value += "Vorhandene Dateien:\n"
                 
-        except Exception as error:
-            result.value = f"❌ FEHLER: {str(error)}"
+                # Alle Dateien auflisten
+                files = os.listdir(".")
+                for file in files:
+                    result_display.value += f"- {file}\n"
         
+        except subprocess.TimeoutExpired:
+            result_display.value += "\n⏱️ ZEITÜBERSCHREITUNG: Programm lief zu lange!\n"
+            
+        except Exception as error:
+            result_display.value += f"\n❌ UNERWARTETER FEHLER:\n{str(error)}\n"
+        
+        # Zum Schluss alles aktualisieren
         page.update()
+        print("✓ Button-Aktion beendet")
     
+    # 5. BUTTON mit KORREKTER Funktion
     start_button = ft.ElevatedButton(
-        "SAFKATY STARTEN",
-        icon="play_arrow",
-        on_click=start_program,
-        width=200,
-        height=50,
+        text="🚀 SAFKATY STARTEN 🚀",
+        on_click=button_geklickt,  # WICHTIG: Richtige Funktion!
+        width=300,
+        height=60,
         style=ft.ButtonStyle(
-            bgcolor=ft.colors.BLUE,
-            color=ft.colors.WHITE
+            bgcolor=ft.colors.BLUE_700,
+            color=ft.colors.WHITE,
+            padding=ft.padding.all(15),
+            elevation=8
         )
     )
     
-    page.add(start_button)
-    page.add(ft.Divider())
-    page.add(ft.Text("Klicke oben auf den Button um zu starten", size=14))
+    # 6. Alles auf der Seite anordnen
+    page.add(
+        ft.Column([
+            # Statuszeile
+            ft.Container(
+                content=status_text,
+                padding=ft.padding.only(bottom=20)
+            ),
+            
+            # Titel
+            ft.Text(
+                "SAFKATY",
+                size=36,
+                weight=ft.FontWeight.BOLD,
+                color=ft.colors.BLUE_900
+            ),
+            
+            # Untertitel
+            ft.Text(
+                "Marchés Publics Manager",
+                size=18,
+                color=ft.colors.BLUE_GREY_600
+            ),
+            
+            ft.Divider(height=30, thickness=1),
+            
+            # Button in der Mitte
+            ft.Container(
+                content=start_button,
+                alignment=ft.alignment.center,
+                padding=ft.padding.only(bottom=30)
+            ),
+            
+            # Ausgabe-Feld
+            result_display,
+            
+            # Hinweis
+            ft.Text(
+                "Klicke oben auf den blauen Button um SAFKATY zu starten",
+                size=12,
+                color=ft.colors.GREY_600,
+                italic=True
+            )
+        ],
+        spacing=10,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        scroll=ft.ScrollMode.AUTO)
+    )
     
-    print("✓ App ist fertig geladen")
+    print("✓ App-UI ist fertig geladen")
+    page.update()
 
-print("=== APP WIRD GESTARTET ===")
-ft.app(target=main)
+# App starten
+if __name__ == "__main__":
+    print("🚀 Starte Flet App...")
+    ft.app(target=main)
