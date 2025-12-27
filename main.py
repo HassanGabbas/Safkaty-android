@@ -173,6 +173,28 @@ def main(page: ft.Page):
     print("✓ App-UI ist fertig geladen")
     page.update()
 
+# WICHTIGER TEIL - DIE BUTTON-FUNKTION:
+def on_button_klick(e):
+    # 1. SOFORT was anzeigen
+    result_text.value = "🔄 Starte SAFKATY...\n"
+    page.update()  # WICHTIG!
+    
+    # 2. Programmlogik
+    try:
+        # Hier kommt dein Code...
+        result_text.value += "✓ Programm läuft\n"
+    except Exception as fehler:
+        result_text.value = f"❌ Fehler: {fehler}"
+    
+    # 3. Seite aktualisieren
+    page.update()
+
+# Button erstellen
+button = ft.ElevatedButton(
+    "SAFKATY STARTEN",
+    on_click=on_button_klick  # Funktion verknüpfen
+)
+
 # App starten
 if __name__ == "__main__":
     print("🚀 Starte Flet App...")
