@@ -1,50 +1,61 @@
-name: Build SAFKATY APK
+name: Build Android APK
 
 on:
   push:
-    branches: [ main, master ]
-  workflow_dispatch:
+    branches: [ main ]
+  workflow_dispatch:  # Erlaubt manuelles Starten
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    
-    - name: Setup Python
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
-    
+        python-version: '3.9'
+        
     - name: Install dependencies
       run: |
-        pip install flet requests beautifulsoup4
-    
-    - name: Create main.py if missing
-      run: |
-        # Falls main.py nicht existiert, erstelle eine einfache
-        if [ ! -f "main.py" ]; then
-          echo 'import flet as ft' > main.py
-          echo 'def main(page: ft.Page):' >> main.py
-          echo '    page.add(ft.Text("SAFKATY App lädt..."))' >> main.py
-          echo 'ft.app(target=main)' >> main.py
-          echo "⚠️  main.py wurde automatisch erstellt"
-        else
-          echo "✅ main.py existiert bereits"
-        fi
+        python -m pip install --upgrade pip
+        pip install flet buildozer
+        pip install -r requirements.txt
         
-        # Zeige Dateien
-        ls -la
-    
+    - name: Create buildozer.spec
+      run: |
+        cat > buildozer.spec << EOF
+[app]
+title = SAFKATY
+package.name = safkaty
+package.domain = org.safkaty
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas
+version = 1.0.0
+requirements = python3,flet==0.22.0,pillow,requests
+orientation = portrait
+osx.python_version = 3
+osx.kivy_version = 2.1.0
+fullscreen = 0
+android.permissions = INTERNET
+android.api = 33
+android.minapi = 21
+android.sdk = 24
+android.ndk = 23b
+android.ndk_api = 21
+p4a.branch = master
+android.arch = armeabi-v7a
+EOF
+        
     - name: Build APK
       run: |
-        echo "y" | flet build apk --verbose
-    
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
+        buildozer -v android debug
+        
+    - name: Upload APK as artifact
+      uses: actions/upload-artifact@v3
       with:
-        name: safkaty-apk
-        path: build/apk/*.apk
-        if-no-files-found: error
+        name: SAFKATY-APK
+        path: bin/*.apk
+        retention-days: 7
