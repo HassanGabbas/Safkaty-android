@@ -1,61 +1,27 @@
-name: Build Android APK
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:  # Erlaubt manuelles Starten
-
+name: Build APK
+on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-        
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flet buildozer
-        pip install -r requirements.txt
-        
-    - name: Create buildozer.spec
-      run: |
-        cat > buildozer.spec << EOF
-[app]
-title = SAFKATY
-package.name = safkaty
-package.domain = org.safkaty
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas
-version = 1.0.0
-requirements = python3,flet==0.22.0,pillow,requests
-orientation = portrait
-osx.python_version = 3
-osx.kivy_version = 2.1.0
-fullscreen = 0
-android.permissions = INTERNET
-android.api = 33
-android.minapi = 21
-android.sdk = 24
-android.ndk = 23b
-android.ndk_api = 21
-p4a.branch = master
-android.arch = armeabi-v7a
-EOF
-        
-    - name: Build APK
-      run: |
-        buildozer -v android debug
-        
-    - name: Upload APK as artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: SAFKATY-APK
-        path: bin/*.apk
-        retention-days: 7
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - run: pip install buildozer
+      - run: |
+          echo '[app]
+          title = SAFKATY
+          package.name = safkaty
+          package.domain = org.safkaty
+          source.dir = .
+          version = 1.0.0
+          requirements = python3,flet
+          orientation = portrait
+          android.permissions = INTERNET
+          android.api = 33' > buildozer.spec
+      - run: buildozer android debug
+      - uses: actions/upload-artifact@v3
+        with:
+          name: app-apk
+          path: bin/*.apk
