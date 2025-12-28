@@ -1,0 +1,42 @@
+name: Build SAFKATY APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:  # Für manuelle Starts
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install flet==0.28.3
+        pip install requests beautifulsoup4
+    
+    - name: Build APK
+      run: |
+        echo "y" | flet build apk --verbose
+    
+    - name: List build files
+      run: |
+        echo "📁 Build-Verzeichnis:"
+        find build/ -type f -name "*.apk" 2>/dev/null || echo "Keine APK gefunden"
+        ls -la build/apk/ 2>/dev/null || echo "Kein build/apk Verzeichnis"
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: safkaty-android-app
+        path: build/apk/*.apk
+        if-no-files-found: error
+        retention-days: 90
