@@ -376,8 +376,8 @@ def main(page: ft.Page):
     )
     
     # Status-Anzeige
-    status_text = ft.Text("Prêt pour la recherche", 
-                         size=16, weight="bold", color="green700")
+    status_text = ft.Text("Prêt pour la recherche", size=16, weight="bold", color="green700")
+
     
     # Ergebnis-Liste
     liste_resultats = ft.ListView(
@@ -443,8 +443,8 @@ def main(page: ft.Page):
             status_text.value = f"❌ Aucun résultat pour '{mot_cle}'"
             status_text.color = "red"
             liste_resultats.controls.append(
-                ft.Text("Aucun marché public trouvé.", 
-                       size=16, color="grey", italic=True)
+                ft.Text("Aucun marché public trouvé.", size=16, color="grey", italic=True)
+
             )
         else:
             # Ergebnisse anzeigen
@@ -488,8 +488,8 @@ def main(page: ft.Page):
                             ], col={"sm": 12, "md": 4}),
                             ft.Column([
                                 ft.Text("📅 Échéance:", size=12, color="grey"),
-                                ft.Text(f"{tender.echeance} à {tender.echeance_time}", 
-                                       size=14, weight="bold", color="red" if "2024" in tender.echeance else "black")
+                                ft.Text(f"{tender.echeance} à {tender.echeance_time}", size=14, weight="bold", color="red" if "2024" in tender.echeance else "black") 
+
                             ], col={"sm": 12, "md": 4}),
                         ]),
                         padding=ft.padding.symmetric(horizontal=15)
@@ -500,8 +500,8 @@ def main(page: ft.Page):
                         ft.ResponsiveRow([
                             ft.Column([
                                 ft.Text("🏛️ Organisation:", size=12, color="grey"),
-                                ft.Text(tender.organisation[:30] + "..." if len(tender.organisation) > 30 else tender.organisation, 
-                                       size=13)
+                                ft.Text(tender.organisation[:30] + "..." if len(tender.organisation) > 30 else tender.organisation, size=13) 
+
                             ], col={"sm": 12, "md": 6}),
                             ft.Column([
                                 ft.Text("📂 Catégorie:", size=12, color="grey"),
@@ -965,8 +965,8 @@ def main(page: ft.Page):
                     ft.Text("Marchés Publics du Maroc", size=16, color="bluegrey600")
                 ])
             ]),
-            ft.Text("Recherchez, analysez et gérez les appels d'offres", 
-                   size=14, color="grey", italic=True)
+            ft.Text("Recherchez, analysez et gérez les appels d'offres", size=14, color="grey", italic=True)
+
         ]),
         padding=25,
         bgcolor="bluegrey50",
@@ -978,8 +978,8 @@ def main(page: ft.Page):
         ft.Column([
             ft.Text("🔍 RECHERCHE PAR MOT-CLÉ", size=20, weight="bold"),
             ft.Divider(height=10),
-            ft.Row([champ_recherche, btn_recherche, btn_historique], 
-                   spacing=10, vertical_alignment="center"),
+            ft.Row([champ_recherche, btn_recherche, btn_historique], spacing=10, vertical_alignment="center"),
+
             ft.Divider(height=15),
             status_text
         ]),
@@ -1020,11 +1020,11 @@ def main(page: ft.Page):
             ft.Container(
                 ft.Column([
                     ft.Row([
-                        ft.Text("📋 RÉSULTATS DE RECHERCHE", 
-                               size=20, weight="bold"),
+                        ft.Text("📋 RÉSULTATS DE RECHERCHE", size=20, weight="bold"),
+
                         ft.Container(
-                            ft.Text("0 résultats", 
-                                   size=14, color="grey", weight="bold"),
+                            ft.Text("0 résultats", size=14, color="grey", weight="bold"),
+
                             padding=ft.padding.symmetric(horizontal=10, vertical=5),
                             bgcolor="bluegrey100",
                             border_radius=20
