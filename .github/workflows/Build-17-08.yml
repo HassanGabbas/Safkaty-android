@@ -1,0 +1,55 @@
+name: Build SAFKATY APK
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install flet==0.28.3
+        pip install requests beautifulsoup4
+    
+    - name: Add Android permissions (manifest)
+      run: |
+        # Erstelle Android Manifest mit Internet-Berechtigung
+        echo '<?xml version="1.0" encoding="utf-8"?>
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+            package="com.example.safkaty">
+            <uses-permission android:name="android.permission.INTERNET"/>
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+            <application
+                android:label="SAFKATY"
+                android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+                <activity
+                    android:name=".MainActivity"
+                    android:exported="true">
+                    <intent-filter>
+                        <action android:name="android.intent.action.MAIN"/>
+                        <category android:name="android.intent.category.LAUNCHER"/>
+                    </intent-filter>
+                </activity>
+            </application>
+        </manifest>' > android_manifest.xml
+    
+    - name: Build APK
+      run: |
+        echo "y" | flet build apk --verbose
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: safkaty-android-app
+        path: build/apk/*.apk
