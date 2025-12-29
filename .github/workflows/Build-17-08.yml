@@ -1,55 +1,33 @@
-name: Build SAFKATY APK
-
-on:
-  push:
-    branches: [ main, master ]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout
+build-android:  # <-- Dieser neue Job fehlt bei Ihnen
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout code
       uses: actions/checkout@v4
-    
-    - name: Setup Python
-      uses: actions/setup-python@v4
+
+    - name: Setup Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
-    
-    - name: Install dependencies
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Python Dependencies
       run: |
-        pip install flet==0.28.3
-        pip install requests beautifulsoup4
-    
-    - name: Add Android permissions (manifest)
-      run: |
-        # Erstelle Android Manifest mit Internet-Berechtigung
-        echo '<?xml version="1.0" encoding="utf-8"?>
-        <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-            package="com.example.safkaty">
-            <uses-permission android:name="android.permission.INTERNET"/>
-            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-            <application
-                android:label="SAFKATY"
-                android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
-                <activity
-                    android:name=".MainActivity"
-                    android:exported="true">
-                    <intent-filter>
-                        <action android:name="android.intent.action.MAIN"/>
-                        <category android:name="android.intent.category.LAUNCHER"/>
-                    </intent-filter>
-                </activity>
-            </application>
-        </manifest>' > android_manifest.xml
-    
-    - name: Build APK
-      run: |
-        echo "y" | flet build apk --verbose
-    
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # Stellt sicher, dass flet installiert wird
+
+    - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
+      uses: subosito/flutter-action@v2
       with:
-        name: safkaty-android-app
-        path: build/apk/*.apk
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+
+    - name: Flet Build APK  # <-- Der entscheidende Befehl
+      run: |
+        flutter config --no-analytics
+        flet build apk --verbose --build-number=$BUILD_NUMBER --build-version=$BUILD_VERSION
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4.3.4
+      with:
+        name: android-apk-artifact
+        path: build/apk/  # Der Standardausgabeordner für die APK
+        if-no-files-found: warn
+        overwrite: false
