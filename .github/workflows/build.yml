@@ -1,61 +1,33 @@
-name: Build Android APK
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:  # Erlaubt manuelles Starten
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    
-    steps:
+build-android:  # <-- Dieser neue Job fehlt bei Ihnen
+  runs-on: ubuntu-latest
+  steps:
     - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/checkout@v4
+
+    - name: Setup Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.9'
-        
-    - name: Install dependencies
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Python Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flet buildozer
-        pip install -r requirements.txt
-        
-    - name: Create buildozer.spec
-      run: |
-        cat > buildozer.spec << EOF
-[app]
-title = SAFKATY
-package.name = safkaty
-package.domain = org.safkaty
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas
-version = 1.0.0
-requirements = python3,flet==0.22.0,pillow,requests
-orientation = portrait
-osx.python_version = 3
-osx.kivy_version = 2.1.0
-fullscreen = 0
-android.permissions = INTERNET
-android.api = 33
-android.minapi = 21
-android.sdk = 24
-android.ndk = 23b
-android.ndk_api = 21
-p4a.branch = master
-android.arch = armeabi-v7a
-EOF
-        
-    - name: Build APK
-      run: |
-        buildozer -v android debug
-        
-    - name: Upload APK as artifact
-      uses: actions/upload-artifact@v3
+        pip install -r requirements.txt  # Stellt sicher, dass flet installiert wird
+
+    - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
+      uses: subosito/flutter-action@v2
       with:
-        name: SAFKATY-APK
-        path: bin/*.apk
-        retention-days: 7
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+
+    - name: Flet Build APK  # <-- Der entscheidende Befehl
+      run: |
+        flutter config --no-analytics
+        flet build apk --verbose --build-number=$BUILD_NUMBER --build-version=$BUILD_VERSION
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4.3.4
+      with:
+        name: android-apk-artifact
+        path: build/apk/  # Der Standardausgabeordner für die APK
+        if-no-files-found: warn
+        overwrite: false
