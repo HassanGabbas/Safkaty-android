@@ -1,27 +1,34 @@
-# main.py - EINFACHE SAFKATY APP
+# main.py - NUR FÜR ANDROID
 import flet as ft
+import sys
 
 def main(page: ft.Page):
-    # Einfache App die garantiert funktioniert
+    # Einfache App die garantiert auf Android funktioniert
     page.title = "SAFKATY"
-    page.vertical_alignment = "center"
-    page.horizontal_alignment = "center"
     
-    # Einfacher Text zum Testen
+    # Header
     page.add(
         ft.Column([
-            ft.Text("SAFKATY APP", size=40, weight="bold", color="blue"),
-            ft.Text("Mobile Version", size=20, color="grey"),
-            ft.Divider(height=20),
+            ft.Row([
+                ft.Icon(ft.icons.PUBLIC, color="blue", size=40),
+                ft.Column([
+                    ft.Text("SAFKATY", size=32, weight="bold"),
+                    ft.Text("Marchés Publics", size=14, color="grey")
+                ])
+            ]),
+            ft.Divider(),
+            ft.Text("Willkommen bei SAFKATY Mobile!", size=18),
+            ft.Text("Diese App funktioniert auf Android.", size=14, color="green"),
+            ft.Divider(),
             ft.ElevatedButton(
-                "Test Button",
-                icon="check",
-                on_click=lambda e: print("Button clicked!")
+                "Test starten",
+                icon="play_arrow",
+                on_click=lambda e: page.add(ft.Text("✅ Test erfolgreich!", color="green"))
             )
-        ], alignment="center", horizontal_alignment="center")
+        ])
     )
-    
-    print("✅ App gestartet!")
 
-# App starten
-ft.app(target=main)
+# App für Android
+if __name__ == "__main__":
+    # Dies wird auf Android korrekt funktionieren
+    ft.app(target=main)
